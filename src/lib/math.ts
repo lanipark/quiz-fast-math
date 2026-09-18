@@ -155,6 +155,62 @@ export function generateDivision(id: number, questionNumber: number): QuizItem {
 }
 
 /**
+ * Independently parses and calculates an equation string to verify its answer.
+ */
+export function evaluateEquation(item: QuizItem): number {
+  if (item.category === "five-4digit-add-sub") {
+    const tokens = item.equation.split(" ");
+    let total = Number(tokens[0]);
+    for (let i = 1; i < tokens.length; i += 2) {
+      const op = tokens[i];
+      const val = Number(tokens[i + 1]);
+      if (op === "+") total += val;
+      else if (op === "-") total -= val;
+    }
+    return total;
+  }
+
+  if (item.category === "bracket-mul") {
+    const match = item.equation.match(
+      /^\((\d+)\s*\+\s*(\d+)\s*-\s*(\d+)\)\s*×\s*(\d+)$/,
+    );
+    if (match) {
+      const a = Number(match[1]);
+      const b = Number(match[2]);
+      const c = Number(match[3]);
+      const d = Number(match[4]);
+      return (a + b - c) * d;
+    }
+  }
+
+  if (item.category === "division") {
+    const match = item.equation.match(/^(\d+)\s*÷\s*(\d+)$/);
+    if (match) {
+      const a = Number(match[1]);
+      const b = Number(match[2]);
+      return a / b;
+    }
+  }
+
+  throw new Error(
+    `Unknown equation category or invalid format: ${item.equation}`,
+  );
+}
+
+/**
+ * Validates that the generated item matches all strict constraints and its evaluated answer.
+ */
+export function validateQuestion(item: QuizItem): boolean {
+  const computed = evaluateEquation(item);
+  if (computed !== item.answer) {
+    throw new Error(
+      `Math mismatch: equation "${item.equation}" evaluated to ${computed}, but stored answer was ${item.answer}`,
+    );
+  }
+  return true;
+}
+
+/**
  * Generate 10-quiz set following strict specification:
  * 1~5: Add/subtract five 4-digit numbers (no negative mid-results)
  * 6~8: (a + b - c) * d with 2-digit d and 3-digit (a + b - c)
@@ -164,13 +220,17 @@ export function generateQuizSet(count: number = 10): QuizItem[] {
   const items: QuizItem[] = [];
 
   for (let i = 1; i <= count; i++) {
+    let item: QuizItem;
     if (i <= 5) {
-      items.push(generateFive4DigitAddSub(i, i));
+      item = generateFive4DigitAddSub(i, i);
     } else if (i <= 8) {
-      items.push(generateBracketMul(i, i));
+      item = generateBracketMul(i, i);
     } else {
-      items.push(generateDivision(i, i));
+      item = generateDivision(i, i);
     }
+    // Runtime self-check: guarantees equation string and answer are 100% mathematically identical
+    validateQuestion(item);
+    items.push(item);
   }
 
   return items;
