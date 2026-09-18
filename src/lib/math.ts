@@ -63,6 +63,14 @@ export function generateFive4DigitAddSub(
     equation += ` ${operators[i]} ${numbers[i + 1]}`;
   }
 
+  const columnTerms = [
+    { value: numbers[0] },
+    { operator: operators[0], value: numbers[1] },
+    { operator: operators[1], value: numbers[2] },
+    { operator: operators[2], value: numbers[3] },
+    { operator: operators[3], value: numbers[4] },
+  ];
+
   return {
     id,
     questionNumber,
@@ -70,6 +78,7 @@ export function generateFive4DigitAddSub(
     answer: runningTotal,
     category: "five-4digit-add-sub",
     categoryLabel: "5 × 4-Digit Addition / Subtraction",
+    columnTerms,
   };
 }
 

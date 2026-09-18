@@ -1,5 +1,10 @@
 export type QuizCategory = "five-4digit-add-sub" | "bracket-mul" | "division";
 
+export interface ColumnTerm {
+  operator?: "+" | "-";
+  value: number;
+}
+
 export interface QuizItem {
   id: number;
   questionNumber: number;
@@ -7,6 +12,7 @@ export interface QuizItem {
   answer: number;
   category: QuizCategory;
   categoryLabel: string;
+  columnTerms?: ColumnTerm[];
 }
 
 export type QuizPhase = "question" | "wait";
