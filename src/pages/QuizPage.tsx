@@ -1,54 +1,173 @@
-import { Link } from "react-router";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate, Link } from "react-router";
+import { generateQuizSet } from "@/lib/math";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Clock } from "lucide-react";
+  DEFAULT_QUIZ_CONFIG,
+  type QuizItem,
+  type QuizPhase,
+} from "@/types/quiz";
+import { QuizDisplay } from "@/components/quiz/QuizDisplay";
+import { WaitProgress } from "@/components/quiz/WaitProgress";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Pause, Play, SkipForward } from "lucide-react";
 
 export function QuizPage() {
-  return (
-    <div className="flex min-h-[80vh] items-center justify-center p-4">
-      <Card className="w-full max-w-xl shadow-lg border-border/80">
-        <CardHeader className="text-center space-y-2">
-          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            <span>Question 1 of 10</span>
-            <span className="flex items-center gap-1 font-mono">
-              <Clock className="size-3.5" /> 10s
-            </span>
-          </div>
-          <CardTitle className="text-5xl font-mono font-bold tracking-wider py-8">
-            7 + 8 = ?
-          </CardTitle>
-          <CardDescription className="text-sm text-muted-foreground">
-            Write down your answer on your paper!
-          </CardDescription>
-        </CardHeader>
+  const navigate = useNavigate();
+  const config = DEFAULT_QUIZ_CONFIG;
 
-        <CardContent className="space-y-4">
-          <div className="space-y-1">
-            <Progress value={65} className="h-3" />
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Time remaining</span>
-              <span className="font-mono">6.5s</span>
-            </div>
-          </div>
+  const [questions] = useState<QuizItem[]>(() =>
+    generateQuizSet(config.totalQuestions),
+  );
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [phase, setPhase] = useState<QuizPhase>("question");
+  const [remainingSeconds, setRemainingSeconds] = useState(
+    config.questionDurationSeconds,
+  );
+  const [isPaused, setIsPaused] = useState(false);
+
+  // Timer loop
+  const timerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (questions.length === 0 || isPaused) {
+      if (timerRef.current) clearInterval(timerRef.current);
+      return;
+    }
+
+    const tickMs = 50;
+    const tickSec = tickMs / 1000;
+
+    timerRef.current = window.setInterval(() => {
+      setRemainingSeconds((prev) => {
+        const next = prev - tickSec;
+        if (next > 0) {
+          return next;
+        }
+
+        // Timer reached zero - handle phase transitions
+        if (phase === "question") {
+          // Question timer ended -> transition to wait / write phase for 10s
+          setPhase("wait");
+          return config.waitDurationSeconds;
+        } else {
+          // Wait timer ended -> move to next question or end quiz
+          if (currentIndex + 1 < questions.length) {
+            setCurrentIndex((idx) => idx + 1);
+            setPhase("question");
+            return config.questionDurationSeconds;
+          } else {
+            // All questions finished! Save to sessionStorage and navigate to results
+            if (timerRef.current) clearInterval(timerRef.current);
+            try {
+              sessionStorage.setItem(
+                "lastQuizSession",
+                JSON.stringify(questions),
+              );
+            } catch {
+              // ignore storage errors
+            }
+            navigate("/results", { state: { questions } });
+            return 0;
+          }
+        }
+      });
+    }, tickMs);
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [questions, phase, currentIndex, isPaused, config, navigate]);
+
+  const handleSkip = () => {
+    if (phase === "question") {
+      // Skip question directly to wait phase
+      setPhase("wait");
+      setRemainingSeconds(config.waitDurationSeconds);
+    } else {
+      // Skip wait phase directly to next question or results
+      if (currentIndex + 1 < questions.length) {
+        setCurrentIndex((idx) => idx + 1);
+        setPhase("question");
+        setRemainingSeconds(config.questionDurationSeconds);
+      } else {
+        try {
+          sessionStorage.setItem("lastQuizSession", JSON.stringify(questions));
+        } catch {
+          // ignore storage errors
+        }
+        navigate("/results", { state: { questions } });
+      }
+    }
+  };
+
+  const currentQuestion = questions[currentIndex];
+
+  if (!currentQuestion) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">
+          Preparing quiz...
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex w-full min-h-[80vh] items-center justify-center p-4">
+      <Card className="w-full max-w-xl shadow-xl border-border/80">
+        <CardContent className="pt-6 px-6 sm:px-8">
+          {phase === "question" ? (
+            <QuizDisplay
+              question={currentQuestion}
+              totalQuestions={config.totalQuestions}
+              remainingSeconds={remainingSeconds}
+              totalSeconds={config.questionDurationSeconds}
+            />
+          ) : (
+            <WaitProgress
+              questionNumber={currentQuestion.questionNumber}
+              totalQuestions={config.totalQuestions}
+              remainingSeconds={remainingSeconds}
+              totalSeconds={config.waitDurationSeconds}
+            />
+          )}
         </CardContent>
 
-        <CardFooter className="flex justify-between pt-4 border-t">
-          <Button variant="ghost" asChild size="sm">
+        <CardFooter className="flex items-center justify-between border-t bg-muted/20 px-6 py-4">
+          <Button variant="ghost" size="sm" asChild>
             <Link to="/">
-              <ArrowLeft className="size-4" /> Exit to Home
+              <ArrowLeft className="size-4" /> Exit
             </Link>
           </Button>
-          <Button asChild size="sm">
-            <Link to="/results">Preview Results View</Link>
-          </Button>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsPaused((prev) => !prev)}
+              className="gap-1.5"
+            >
+              {isPaused ? (
+                <>
+                  <Play className="size-4 fill-current" /> Resume
+                </>
+              ) : (
+                <>
+                  <Pause className="size-4" /> Pause
+                </>
+              )}
+            </Button>
+
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleSkip}
+              className="gap-1.5"
+            >
+              <SkipForward className="size-4" /> Skip
+            </Button>
+          </div>
         </CardFooter>
       </Card>
     </div>
