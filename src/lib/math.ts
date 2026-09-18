@@ -181,23 +181,31 @@ export function generateTwoDigitMul(
 
 /**
  * Questions 7~8:
- * Form: a / b
+ * Form: a ÷ b
  * Constraints:
  * - a must be 3-digit (100..999)
  * - b must be 2-digit (10..99)
  * - remnant is 0 (a % b === 0)
+ * - avoid "XX0 ÷ Y0" patterns (both ending in 0, which reduces to XX ÷ Y)
+ * - avoid quotient === 10
  */
 export function generateDivision(id: number, questionNumber: number): QuizItem {
-  // b must be 2-digit: choose in [11, 89] so that at least one 3-digit multiple exists
-  const b = getRandomInt(11, 89);
+  let a = 0;
+  let b = 0;
+  let quotient = 0;
 
-  // a = b * quotient
-  // 100 <= b * q <= 999
-  const minQuotient = Math.ceil(100 / b);
-  const maxQuotient = Math.floor(999 / b);
+  do {
+    // b must be 2-digit: choose in [11, 89] so that at least one 3-digit multiple exists
+    b = getRandomInt(11, 89);
 
-  const quotient = getRandomInt(minQuotient, maxQuotient);
-  const a = b * quotient;
+    // a = b * quotient
+    // 100 <= b * q <= 999
+    const minQuotient = Math.ceil(100 / b);
+    const maxQuotient = Math.floor(999 / b);
+
+    quotient = getRandomInt(minQuotient, maxQuotient);
+    a = b * quotient;
+  } while (b % 10 === 0 || (a % 10 === 0 && b % 10 === 0) || quotient === 10);
 
   return {
     id,

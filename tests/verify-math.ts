@@ -83,6 +83,14 @@ for (let setIdx = 0; setIdx < 10000; setIdx++) {
             `Constraints violated in division Q${qNum}: ${a} ÷ ${b}`,
           );
         }
+        if (a % 10 === 0 && b % 10 === 0) {
+          throw new Error(
+            `Division Q${qNum} has trailing zeros in both numbers (XX0 ÷ Y0): ${a} ÷ ${b}`,
+          );
+        }
+        if (b % 10 === 0) {
+          throw new Error(`Division Q${qNum} divisor ends in 0: ${a} ÷ ${b}`);
+        }
       } else if (qNum >= 9 && qNum <= 10) {
         if (q.category !== "bracket-mul") {
           throw new Error(
