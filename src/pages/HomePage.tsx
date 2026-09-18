@@ -30,27 +30,42 @@ export function HomePage() {
         <CardContent className="space-y-4">
           <div className="rounded-xl bg-muted/50 p-4 border border-border/50 text-left space-y-3">
             <div className="font-semibold text-sm tracking-wide text-foreground">
-              Quiz Flow
+              Quiz Flow & Problem Formats
             </div>
             <ul className="text-sm space-y-2 text-muted-foreground">
               <li className="flex items-start gap-2">
                 <span className="font-medium text-foreground min-w-5">1.</span>
                 <span>
-                  Press <strong>Start</strong> when ready with paper and pencil.
+                  <strong>10s equation display</strong>, then{" "}
+                  <strong>10s writing countdown</strong> per question.
                 </span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="font-medium text-foreground min-w-5">2.</span>
+                <span className="font-semibold text-foreground min-w-5">
+                  Q1–5:
+                </span>
                 <span>
-                  <strong>10 questions</strong> flash one by one with a visual
-                  timer bar to write your answer down.
+                  <strong>5 × 4-digit addition/subtraction</strong> (e.g.{" "}
+                  <em>1420 + 3810 - 2150...</em>, intermediate values always ≥
+                  0).
                 </span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="font-medium text-foreground min-w-5">3.</span>
+                <span className="font-semibold text-foreground min-w-5">
+                  Q6–8:
+                </span>
                 <span>
-                  Check all equations and answers at the end of the 10
-                  questions.
+                  <strong>(a + b - c) × d</strong> with 2-digit <em>d</em> and
+                  3-digit <em>(a + b - c)</em>.
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="font-semibold text-foreground min-w-5">
+                  Q9–10:
+                </span>
+                <span>
+                  <strong>a ÷ b</strong> with 3-digit <em>a</em>, 2-digit{" "}
+                  <em>b</em>, and 0 remainder.
                 </span>
               </li>
             </ul>

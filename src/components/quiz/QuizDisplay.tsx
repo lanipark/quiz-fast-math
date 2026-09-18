@@ -35,8 +35,19 @@ export function QuizDisplay({
       </div>
 
       {/* Main Flash Math Equation Display */}
-      <div className="flex flex-col items-center justify-center min-h-[160px] w-full rounded-2xl bg-muted/30 border border-border/60 py-8 px-4 transition-all">
-        <div className="font-mono text-5xl sm:text-6xl md:text-7xl font-bold tracking-wider text-foreground select-none tabular-nums">
+      <div className="flex flex-col items-center justify-center min-h-[180px] w-full rounded-2xl bg-muted/30 border border-border/60 py-8 px-4 sm:px-6 transition-all space-y-2">
+        <div className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+          {question.categoryLabel}
+        </div>
+        <div
+          className={`font-mono font-bold tracking-normal sm:tracking-wide text-foreground select-none tabular-nums text-center break-words max-w-full leading-snug ${
+            question.category === "five-4digit-add-sub"
+              ? "text-2xl sm:text-3xl md:text-4xl"
+              : question.category === "bracket-mul"
+                ? "text-3xl sm:text-4xl md:text-5xl"
+                : "text-5xl sm:text-6xl md:text-7xl"
+          }`}
+        >
           {question.equation} = ?
         </div>
       </div>

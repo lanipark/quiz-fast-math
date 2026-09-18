@@ -1,13 +1,12 @@
-export type MathOperator = "+" | "-" | "×" | "÷";
+export type QuizCategory = "five-4digit-add-sub" | "bracket-mul" | "division";
 
 export interface QuizItem {
   id: number;
   questionNumber: number;
-  operand1: number;
-  operand2: number;
-  operator: MathOperator;
   equation: string;
   answer: number;
+  category: QuizCategory;
+  categoryLabel: string;
 }
 
 export type QuizPhase = "question" | "wait";

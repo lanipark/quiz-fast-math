@@ -62,21 +62,26 @@ export function ResultsPage() {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-3">
             {questions.map((item, idx) => (
               <div
                 key={item.id || idx}
-                className="flex items-center justify-between rounded-xl border bg-muted/30 p-3.5 transition-colors hover:bg-muted/50"
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-xl border bg-muted/30 p-3.5 transition-colors hover:bg-muted/50"
               >
-                <div className="flex items-center gap-2.5">
-                  <span className="flex size-6 items-center justify-center rounded-md bg-background text-xs font-semibold text-muted-foreground border">
+                <div className="flex items-start sm:items-center gap-2.5 min-w-0">
+                  <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-background text-xs font-semibold text-muted-foreground border">
                     {idx + 1}
                   </span>
-                  <span className="font-mono text-base font-medium text-foreground">
-                    {item.equation}
-                  </span>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 min-w-0">
+                    <span className="font-mono text-sm sm:text-base font-medium text-foreground break-words">
+                      {item.equation}
+                    </span>
+                    <span className="text-[11px] font-medium text-muted-foreground/80 sm:border-l sm:pl-3">
+                      {item.categoryLabel}
+                    </span>
+                  </div>
                 </div>
-                <div className="font-mono text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                <div className="font-mono text-lg font-bold text-emerald-600 dark:text-emerald-400 shrink-0 self-end sm:self-center pl-8 sm:pl-2">
                   = {item.answer}
                 </div>
               </div>

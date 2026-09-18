@@ -6,6 +6,7 @@ interface WaitProgressProps {
   totalQuestions: number;
   remainingSeconds: number;
   totalSeconds: number;
+  categoryLabel?: string;
 }
 
 export function WaitProgress({
@@ -13,6 +14,7 @@ export function WaitProgress({
   totalQuestions,
   remainingSeconds,
   totalSeconds,
+  categoryLabel,
 }: WaitProgressProps) {
   // Progress value counting down from 100% to 0%
   const progressPercent = Math.max(
@@ -26,6 +28,12 @@ export function WaitProgress({
       <div className="flex w-full items-center justify-between">
         <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
           Question {questionNumber} of {totalQuestions}
+          {categoryLabel && (
+            <span className="hidden sm:inline text-muted-foreground/70">
+              {" "}
+              • {categoryLabel}
+            </span>
+          )}
         </span>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400 px-3 py-1 text-xs font-semibold animate-pulse">
           <Pencil className="size-3.5" />

@@ -115,7 +115,7 @@ export function QuizPage() {
 
   return (
     <div className="flex w-full min-h-[80vh] items-center justify-center p-4">
-      <Card className="w-full max-w-xl shadow-xl border-border/80">
+      <Card className="w-full max-w-2xl shadow-xl border-border/80">
         <CardContent className="pt-6 px-6 sm:px-8">
           {phase === "question" ? (
             <QuizDisplay
@@ -130,6 +130,7 @@ export function QuizPage() {
               totalQuestions={config.totalQuestions}
               remainingSeconds={remainingSeconds}
               totalSeconds={config.waitDurationSeconds}
+              categoryLabel={currentQuestion.categoryLabel}
             />
           )}
         </CardContent>
