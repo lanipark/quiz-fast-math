@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, Link } from "react-router";
 import { generateQuizSet } from "@/lib/math";
 import {
@@ -79,7 +79,7 @@ export function QuizPage() {
     };
   }, [questions, phase, currentIndex, isPaused, config, navigate]);
 
-  const handleSkip = () => {
+  const handleSkip = useCallback(() => {
     if (phase === "question") {
       // Skip question directly to wait phase
       setPhase("wait");
@@ -99,7 +99,30 @@ export function QuizPage() {
         navigate("/results", { state: { questions } });
       }
     }
-  };
+  }, [phase, currentIndex, questions, config, navigate]);
+
+  // Spacebar keyboard event listener to skip in both question and wait/progress screens
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if focus is in an input or textarea
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
+
+      if (e.code === "Space" || e.key === " ") {
+        e.preventDefault();
+        handleSkip();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handleSkip]);
 
   const currentQuestion = questions[currentIndex];
 
@@ -167,6 +190,9 @@ export function QuizPage() {
               className="gap-1.5"
             >
               <SkipForward className="size-4" /> Skip
+              <kbd className="ml-1 hidden sm:inline-block rounded bg-muted px-1.5 py-0.5 text-[10px] font-mono font-medium text-muted-foreground border">
+                Space
+              </kbd>
             </Button>
           </div>
         </CardFooter>
