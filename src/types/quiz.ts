@@ -1,4 +1,9 @@
-export type QuizCategory = "five-4digit-add-sub" | "bracket-mul" | "division";
+export type QuizCategory =
+  | "five-3digit-add-sub"
+  | "five-4digit-add-sub"
+  | "two-digit-mul"
+  | "bracket-mul"
+  | "division";
 
 export interface ColumnTerm {
   operator?: "+" | "-";

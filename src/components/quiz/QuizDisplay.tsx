@@ -23,7 +23,8 @@ export function QuizDisplay({
 
   const columnTerms =
     question.columnTerms ??
-    (question.category === "five-4digit-add-sub"
+    (question.category === "five-3digit-add-sub" ||
+    question.category === "five-4digit-add-sub"
       ? (() => {
           const tokens = question.equation.split(" ");
           if (tokens.length >= 3) {

@@ -42,21 +42,29 @@ export function HomePage() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="font-semibold text-foreground min-w-5">
-                  Q1–5:
+                  Q1–4:
                 </span>
                 <span>
-                  <strong>5 × 4-digit addition/subtraction</strong> (e.g.{" "}
-                  <em>1420 + 3810 - 2150...</em>, intermediate values always ≥
-                  0).
+                  <strong>5 × 3-digit addition/subtraction</strong> (e.g.{" "}
+                  <em>342 + 810 - 215...</em>, intermediate values always ≥ 0).
                 </span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="font-semibold text-foreground min-w-5">
-                  Q6–8:
+                  Q5–6:
                 </span>
                 <span>
-                  <strong>(a + b - c) × d</strong> with 2-digit <em>d</em> and
-                  3-digit <em>(a + b - c)</em>.
+                  <strong>a × b multiplication</strong> (both 2-digit, e.g.{" "}
+                  <em>34 × 78</em>).
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="font-semibold text-foreground min-w-5">
+                  Q7–8:
+                </span>
+                <span>
+                  <strong>a ÷ b</strong> with 3-digit <em>a</em>, 2-digit{" "}
+                  <em>b</em>, and 0 remainder.
                 </span>
               </li>
               <li className="flex items-start gap-2">
@@ -64,8 +72,8 @@ export function HomePage() {
                   Q9–10:
                 </span>
                 <span>
-                  <strong>a ÷ b</strong> with 3-digit <em>a</em>, 2-digit{" "}
-                  <em>b</em>, and 0 remainder.
+                  <strong>(a + b - c) × d</strong> with 2-digit <em>d</em> and
+                  3-digit <em>(a + b - c)</em>.
                 </span>
               </li>
             </ul>
