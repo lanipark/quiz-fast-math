@@ -55,8 +55,8 @@ export function HomePage() {
                   Q5–6:
                 </span>
                 <span>
-                  <strong>a × b multiplication</strong> (both 2-digit, e.g.{" "}
-                  <em>34 × 78</em>).
+                  <strong>a × b multiplication</strong> (5s display, both
+                  2-digit, e.g. <em>34 × 78</em>).
                 </span>
               </li>
               <li className="flex items-start gap-2">
@@ -64,8 +64,8 @@ export function HomePage() {
                   Q7–8:
                 </span>
                 <span>
-                  <strong>a ÷ b</strong> with 3-digit <em>a</em>, 2-digit{" "}
-                  <em>b</em>, and 0 remainder.
+                  <strong>a ÷ b division</strong> (5s display with 3-digit{" "}
+                  <em>a</em>, 2-digit <em>b</em>, and 0 remainder).
                 </span>
               </li>
               <li className="flex items-start gap-2">
