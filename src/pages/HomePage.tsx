@@ -37,7 +37,7 @@ export function HomePage() {
                 <span className="font-medium text-foreground min-w-5">1.</span>
                 <span>
                   <strong>Flash / 10s equation display</strong>, then{" "}
-                  <strong>10s writing countdown</strong> per question.
+                  <strong>5s writing countdown</strong> per question.
                 </span>
               </li>
               <li className="flex items-start gap-2">

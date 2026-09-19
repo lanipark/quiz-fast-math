@@ -31,7 +31,7 @@ export interface QuizConfig {
 export const DEFAULT_QUIZ_CONFIG: QuizConfig = {
   totalQuestions: 10,
   questionDurationSeconds: 10,
-  waitDurationSeconds: 10,
+  waitDurationSeconds: 5,
 };
 
 export function getQuestionDurationSeconds(
