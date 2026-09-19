@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Link } from "react-router";
 import { Calculator } from "lucide-react";
 import { HomePage } from "@/pages/HomePage";
 import { QuizPage } from "@/pages/QuizPage";
+import { CompletedPage } from "@/pages/CompletedPage";
 import { ResultsPage } from "@/pages/ResultsPage";
 
 export default function App() {
@@ -37,6 +38,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/quiz" element={<QuizPage />} />
+            <Route path="/completed" element={<CompletedPage />} />
             <Route path="/results" element={<ResultsPage />} />
           </Routes>
         </main>

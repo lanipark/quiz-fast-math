@@ -62,7 +62,7 @@ export function QuizPage() {
               config.questionDurationSeconds,
             );
           } else {
-            // All questions finished! Save to sessionStorage and navigate to results
+            // All questions finished! Save to sessionStorage and navigate to completed page
             if (timerRef.current) clearInterval(timerRef.current);
             try {
               sessionStorage.setItem(
@@ -72,7 +72,7 @@ export function QuizPage() {
             } catch {
               // ignore storage errors
             }
-            navigate("/results", { state: { questions } });
+            navigate("/completed", { state: { questions } });
             return 0;
           }
         }
@@ -107,7 +107,7 @@ export function QuizPage() {
         } catch {
           // ignore storage errors
         }
-        navigate("/results", { state: { questions } });
+        navigate("/completed", { state: { questions } });
       }
     }
   }, [phase, currentIndex, questions, config, navigate]);

@@ -105,8 +105,18 @@ export function ResultsPage() {
             size="lg"
             className="w-full sm:w-auto"
           >
+            <Link to="/completed" state={{ questions }}>
+              Hide Answers
+            </Link>
+          </Button>
+          <Button
+            variant="ghost"
+            asChild
+            size="lg"
+            className="w-full sm:w-auto"
+          >
             <Link to="/">
-              <Home className="size-4" /> Back to Home
+              <Home className="size-4" /> Home
             </Link>
           </Button>
         </CardFooter>
