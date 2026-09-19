@@ -36,7 +36,7 @@ export function QuizPage() {
       return;
     }
 
-    const tickMs = 25;
+    const tickMs = 50;
     const tickSec = tickMs / 1000;
 
     timerRef.current = window.setInterval(() => {

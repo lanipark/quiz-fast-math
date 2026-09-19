@@ -67,7 +67,7 @@ export function WaitProgress({
         </div>
         <Progress
           value={progressPercent}
-          className="h-3.5 transition-all [&>[data-slot=progress-indicator]]:bg-amber-500"
+          className="h-3.5 [&>[data-slot=progress-indicator]]:bg-amber-500"
         />
       </div>
     </div>

@@ -160,7 +160,7 @@ export function QuizDisplay({
             {remainingSeconds.toFixed(1)}s
           </span>
         </div>
-        <Progress value={progressPercent} className="h-3.5 transition-all" />
+        <Progress value={progressPercent} className="h-3.5" />
       </div>
     </div>
   );
