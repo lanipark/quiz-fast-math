@@ -54,7 +54,7 @@ export function HomePage() {
                 </span>
                 <span>
                   <strong>a × b 곱셈</strong> (5초 표시, 두 자리 수 × 두 자리
-                  수, 예: <em>34 × 78</em>).
+                  수, 일의 자리 0 제외, 예: <em>34 × 78</em>).
                 </span>
               </li>
               <li className="flex items-start gap-2">
@@ -63,7 +63,7 @@ export function HomePage() {
                 </span>
                 <span>
                   <strong>a ÷ b 나눗셈</strong> (10초 표시, 세 자리 수 ÷ 두 자리
-                  수, 나누어떨어짐).
+                  수(11~49), 나누어떨어짐).
                 </span>
               </li>
               <li className="flex items-start gap-2">

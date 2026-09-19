@@ -82,6 +82,11 @@ for (let setIdx = 0; setIdx < 10000; setIdx++) {
             `Expected 2-digit factors in Q${qNum}, got ${a} × ${b}`,
           );
         }
+        if (a % 10 === 0 || b % 10 === 0) {
+          throw new Error(
+            `Multiplication Q${qNum} factor ends in 0: ${a} × ${b}`,
+          );
+        }
       } else if (qNum >= 7 && qNum <= 8) {
         if (q.category !== "division") {
           throw new Error(`Expected division for Q${qNum}, got ${q.category}`);
@@ -93,7 +98,7 @@ for (let setIdx = 0; setIdx < 10000; setIdx++) {
           );
         const a = Number(match[1]);
         const b = Number(match[2]);
-        if (a < 100 || a > 999 || b < 10 || b > 99 || a % b !== 0) {
+        if (a < 100 || a > 999 || b < 11 || b > 49 || a % b !== 0) {
           throw new Error(
             `Constraints violated in division Q${qNum}: ${a} ÷ ${b}`,
           );

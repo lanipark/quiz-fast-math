@@ -165,8 +165,17 @@ export function generateTwoDigitMul(
   id: number,
   questionNumber: number,
 ): QuizItem {
-  const a = getRandomInt(10, 99);
-  const b = getRandomInt(10, 99);
+  let a = 0;
+  let b = 0;
+
+  do {
+    a = getRandomInt(11, 99);
+  } while (a % 10 === 0);
+
+  do {
+    b = getRandomInt(11, 99);
+  } while (b % 10 === 0);
+
   const answer = a * b;
 
   return {
@@ -184,7 +193,7 @@ export function generateTwoDigitMul(
  * Form: a ÷ b
  * Constraints:
  * - a must be 3-digit (100..999)
- * - b must be 2-digit (10..99)
+ * - b must be 2-digit in [11, 49]
  * - remnant is 0 (a % b === 0)
  * - avoid "XX0 ÷ Y0" patterns (both ending in 0, which reduces to XX ÷ Y)
  * - avoid quotient === 10
@@ -195,8 +204,8 @@ export function generateDivision(id: number, questionNumber: number): QuizItem {
   let quotient = 0;
 
   do {
-    // b must be 2-digit: choose in [11, 89] so that at least one 3-digit multiple exists
-    b = getRandomInt(11, 89);
+    // b must be 2-digit: choose in [11, 49] so that division is challenging and quotient is varied
+    b = getRandomInt(11, 49);
 
     // a = b * quotient
     // 100 <= b * q <= 999
@@ -897,6 +906,40 @@ export function validateQuestion(item: QuizItem): boolean {
       throw new Error(
         `Bracket-mul equation has 4-digit number in add/sub sequence: ${item.equation}`,
       );
+    }
+  }
+
+  if (item.category === "two-digit-mul") {
+    const match = item.equation.match(/^(\d+)\s*×\s*(\d+)$/);
+    if (!match) {
+      throw new Error(`Invalid format for two-digit-mul: ${item.equation}`);
+    }
+    const a = Number(match[1]);
+    const b = Number(match[2]);
+    if (a < 10 || a > 99 || b < 10 || b > 99 || a % 10 === 0 || b % 10 === 0) {
+      throw new Error(
+        `Invalid factors in two-digit-mul (no X0 allowed): ${item.equation}`,
+      );
+    }
+  }
+
+  if (item.category === "division") {
+    const match = item.equation.match(/^(\d+)\s*÷\s*(\d+)$/);
+    if (!match) {
+      throw new Error(`Invalid format for division: ${item.equation}`);
+    }
+    const a = Number(match[1]);
+    const b = Number(match[2]);
+    if (
+      a < 100 ||
+      a > 999 ||
+      b < 11 ||
+      b > 49 ||
+      b % 10 === 0 ||
+      a % b !== 0 ||
+      a / b === 10
+    ) {
+      throw new Error(`Invalid division question: ${item.equation}`);
     }
   }
 
