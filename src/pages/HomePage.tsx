@@ -19,25 +19,24 @@ export function HomePage() {
             <Sparkles className="size-6" />
           </div>
           <CardTitle className="text-3xl font-bold tracking-tight">
-            Fast Math Quiz
+            패스트 매스 연산 퀴즈
           </CardTitle>
           <CardDescription className="text-base text-muted-foreground">
-            Elementary-level flash math training. Get your paper and pencil
-            ready!
+            초등 수준의 빠른 플래시 연산 연습. 종이와 연필을 준비해 주세요!
           </CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-4">
           <div className="rounded-xl bg-muted/50 p-4 border border-border/50 text-left space-y-3">
             <div className="font-semibold text-sm tracking-wide text-foreground">
-              Quiz Flow & Problem Formats
+              퀴즈 진행 방식 및 문제 유형
             </div>
             <ul className="text-sm space-y-2 text-muted-foreground">
               <li className="flex items-start gap-2">
                 <span className="font-medium text-foreground min-w-5">1.</span>
                 <span>
-                  <strong>Flash / 10s equation display</strong>, then{" "}
-                  <strong>5s writing countdown</strong> per question.
+                  <strong>문제별 플래시/화면 표시</strong> 후{" "}
+                  <strong>5초간 정답 작성 카운트다운</strong> 진행.
                 </span>
               </li>
               <li className="flex items-start gap-2">
@@ -45,9 +44,8 @@ export function HomePage() {
                   Q1–4:
                 </span>
                 <span>
-                  <strong>5 × 3-digit addition/subtraction</strong> (flash
-                  numbers shown one by one: 1.4s visible, 0.1s clean;
-                  intermediate values always ≥ 0).
+                  <strong>5 × 3자리 덧셈/뺄셈</strong> (숫자가 하나씩 플래시:
+                  1.4초 표시, 0.1초 숨김; 중간 계산값 ≥ 0).
                 </span>
               </li>
               <li className="flex items-start gap-2">
@@ -55,8 +53,8 @@ export function HomePage() {
                   Q5–6:
                 </span>
                 <span>
-                  <strong>a × b multiplication</strong> (5s display, both
-                  2-digit, e.g. <em>34 × 78</em>).
+                  <strong>a × b 곱셈</strong> (5초 표시, 두 자리 수 × 두 자리
+                  수, 예: <em>34 × 78</em>).
                 </span>
               </li>
               <li className="flex items-start gap-2">
@@ -64,8 +62,8 @@ export function HomePage() {
                   Q7–8:
                 </span>
                 <span>
-                  <strong>a ÷ b division</strong> (5s display with 3-digit{" "}
-                  <em>a</em>, 2-digit <em>b</em>, and 0 remainder).
+                  <strong>a ÷ b 나눗셈</strong> (10초 표시, 세 자리 수 ÷ 두 자리
+                  수, 나누어떨어짐).
                 </span>
               </li>
               <li className="flex items-start gap-2">
@@ -73,9 +71,8 @@ export function HomePage() {
                   Q9–10:
                 </span>
                 <span>
-                  <strong>Mixed operations with parentheses</strong> (4–7
-                  numbers, may include 4×1 / 3×1 / 2×2 multiplication and exact
-                  division).
+                  <strong>괄호 혼합 계산</strong> (15초 표시, 4~7개 숫자, 4×1 /
+                  3×1 / 2×2 곱셈 및 나누어떨어지는 나눗셈 포함).
                 </span>
               </li>
             </ul>
@@ -90,16 +87,16 @@ export function HomePage() {
           >
             <Link to="/quiz">
               <Play className="size-5 fill-current" />
-              Start Quiz
+              퀴즈 시작하기
             </Link>
           </Button>
           <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1">
-              <Timer className="size-3.5" /> 10s per question
+              <Timer className="size-3.5" /> 문제당 5~15초
             </span>
             <span>•</span>
             <span className="inline-flex items-center gap-1">
-              <FileCheck className="size-3.5" /> 10 questions total
+              <FileCheck className="size-3.5" /> 총 10문제
             </span>
           </div>
         </CardFooter>

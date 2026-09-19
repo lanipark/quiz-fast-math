@@ -74,7 +74,7 @@ export function generateFive3DigitAddSub(
     equation,
     answer: runningTotal,
     category: "five-3digit-add-sub",
-    categoryLabel: "5 × 3-Digit Addition / Subtraction",
+    categoryLabel: "5 × 3자리 덧셈/뺄셈",
     columnTerms,
   };
 }
@@ -151,7 +151,7 @@ export function generateFive4DigitAddSub(
     equation,
     answer: runningTotal,
     category: "five-4digit-add-sub",
-    categoryLabel: "5 × 4-Digit Addition / Subtraction",
+    categoryLabel: "5 × 4자리 덧셈/뺄셈",
     columnTerms,
   };
 }
@@ -175,7 +175,7 @@ export function generateTwoDigitMul(
     equation: `${a} × ${b}`,
     answer,
     category: "two-digit-mul",
-    categoryLabel: "2-Digit × 2-Digit Multiplication",
+    categoryLabel: "두 자리 × 두 자리 곱셈",
   };
 }
 
@@ -213,7 +213,7 @@ export function generateDivision(id: number, questionNumber: number): QuizItem {
     equation: `${a} ÷ ${b}`,
     answer: quotient,
     category: "division",
-    categoryLabel: "3-Digit ÷ 2-Digit Division",
+    categoryLabel: "세 자리 ÷ 두 자리 나눗셈",
   };
 }
 
@@ -627,7 +627,7 @@ export function generateBracketMul(
     equation,
     answer,
     category: "bracket-mul",
-    categoryLabel: "Mixed Operations with Parentheses",
+    categoryLabel: "괄호 혼합 계산",
   };
 }
 

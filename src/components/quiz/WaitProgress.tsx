@@ -27,7 +27,7 @@ export function WaitProgress({
       {/* Question Header & Phase Pill */}
       <div className="flex w-full items-center justify-between">
         <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
-          Question {questionNumber} of {totalQuestions}
+          문제 {questionNumber} / {totalQuestions}
           {categoryLabel && (
             <span className="hidden sm:inline text-muted-foreground/70">
               {" "}
@@ -37,7 +37,7 @@ export function WaitProgress({
         </span>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400 px-3 py-1 text-xs font-semibold animate-pulse">
           <Pencil className="size-3.5" />
-          Writing Time
+          정답 작성 시간
         </span>
       </div>
 
@@ -47,11 +47,10 @@ export function WaitProgress({
           <Pencil className="size-7 animate-bounce" />
         </div>
         <div className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
-          Write down answer
+          정답을 적으세요
         </div>
         <p className="text-sm text-muted-foreground max-w-sm">
-          Write your answer on your paper now! The next question will appear
-          soon.
+          지금 종이에 정답을 적어보세요! 잠시 후 다음 문제가 시작됩니다.
         </p>
       </div>
 
@@ -59,7 +58,7 @@ export function WaitProgress({
       <div className="w-full space-y-2">
         <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
           <span className="flex items-center gap-1.5">
-            <Timer className="size-3.5" /> Time to write
+            <Timer className="size-3.5" /> 작성 남은 시간
           </span>
           <span className="font-mono font-semibold text-foreground text-sm tabular-nums">
             {remainingSeconds.toFixed(1)}s

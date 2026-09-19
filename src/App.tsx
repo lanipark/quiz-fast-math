@@ -18,17 +18,17 @@ export default function App() {
               <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                 <Calculator className="size-4" />
               </div>
-              <span>Fast Math</span>
+              <span>패스트 매스</span>
             </Link>
             <nav className="flex items-center gap-4 text-sm text-muted-foreground">
               <Link to="/" className="hover:text-foreground transition-colors">
-                Home
+                홈
               </Link>
               <Link
                 to="/quiz"
                 className="hover:text-foreground transition-colors"
               >
-                Quiz
+                퀴즈
               </Link>
             </nav>
           </div>
@@ -44,7 +44,7 @@ export default function App() {
         </main>
 
         <footer className="border-t py-4 text-center text-xs text-muted-foreground">
-          Fast Math Quiz • Elementary Speed Practice
+          패스트 매스 • 초등 빠른 연산 연습
         </footer>
       </div>
     </BrowserRouter>

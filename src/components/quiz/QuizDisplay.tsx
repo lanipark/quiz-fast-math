@@ -70,13 +70,13 @@ export function QuizDisplay({
       {/* Question Header & Phase Pill */}
       <div className="flex w-full items-center justify-between">
         <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
-          Question {question.questionNumber} of {totalQuestions}
+          문제 {question.questionNumber} / {totalQuestions}
         </span>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
           <Eye className="size-3.5" />
           {columnTerms
-            ? `Flash (${currentTermIndex + 1}/${totalTerms})`
-            : "Look & Calculate"}
+            ? `플래시 (${currentTermIndex + 1}/${totalTerms})`
+            : "문제 확인 및 암산"}
         </span>
       </div>
 
@@ -109,7 +109,7 @@ export function QuizDisplay({
                 })}
               </div>
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">
-                Number {currentTermIndex + 1} of {totalTerms}
+                {currentTermIndex + 1}번째 숫자 / 총 {totalTerms}개
               </span>
             </div>
 
@@ -154,7 +154,7 @@ export function QuizDisplay({
         <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
           <span className="flex items-center gap-1.5">
             <Timer className="size-3.5" />{" "}
-            {columnTerms ? "Flash Numbers" : "Equation Screen"}
+            {columnTerms ? "플래시 연산" : "문제 화면"}
           </span>
           <span className="font-mono font-semibold text-foreground text-sm tabular-nums">
             {remainingSeconds.toFixed(1)}s

@@ -47,11 +47,14 @@ export function getQuestionDurationSeconds(
     // 1.4s visible + 0.1s clean = 1.5s per number (7.5s for 5 numbers)
     return termCount * 1.5;
   }
-  if (
-    question.category === "two-digit-mul" ||
-    question.category === "division"
-  ) {
+  if (question.category === "two-digit-mul") {
     return 5;
+  }
+  if (question.category === "division") {
+    return 10;
+  }
+  if (question.category === "bracket-mul") {
+    return 15;
   }
   return defaultDuration;
 }

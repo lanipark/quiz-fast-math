@@ -46,19 +46,18 @@ export function ResultsPage() {
             <CheckCircle2 className="size-8" />
           </div>
           <CardTitle className="text-3xl sm:text-4xl font-bold tracking-tight">
-            Quiz Answers
+            퀴즈 정답
           </CardTitle>
           <CardDescription className="text-sm sm:text-base text-muted-foreground">
-            Compare your handwritten answers on paper with the correct answers
-            below!
+            종이에 적은 답안과 아래 정답을 비교해 보세요!
           </CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            <span>All 10 Questions</span>
+            <span>전체 10문제</span>
             <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-              <Sparkles className="size-3.5" /> Full Answer Key
+              <Sparkles className="size-3.5" /> 정답표
             </span>
           </div>
 
@@ -96,7 +95,7 @@ export function ResultsPage() {
             className="w-full sm:w-auto font-semibold shadow-sm"
           >
             <Link to="/quiz">
-              <RotateCcw className="size-4" /> Start New Quiz
+              <RotateCcw className="size-4" /> 새 퀴즈 시작
             </Link>
           </Button>
           <Button
@@ -106,7 +105,7 @@ export function ResultsPage() {
             className="w-full sm:w-auto"
           >
             <Link to="/completed" state={{ questions }}>
-              Hide Answers
+              정답 숨기기
             </Link>
           </Button>
           <Button
@@ -116,7 +115,7 @@ export function ResultsPage() {
             className="w-full sm:w-auto"
           >
             <Link to="/">
-              <Home className="size-4" /> Home
+              <Home className="size-4" /> 홈으로
             </Link>
           </Button>
         </CardFooter>

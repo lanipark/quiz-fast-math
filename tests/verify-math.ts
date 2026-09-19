@@ -5,6 +5,7 @@ import {
   evaluateArithmetic,
   isValidMultiplicationFactors,
 } from "../src/lib/math.ts";
+import { getQuestionDurationSeconds } from "../src/types/quiz.ts";
 
 console.log(
   "Running math accuracy verification across 10,000 quiz sets (100,000 questions)...",
@@ -32,6 +33,16 @@ for (let setIdx = 0; setIdx < 10000; setIdx++) {
           q.answer,
         );
         errors++;
+      }
+
+      // Verify duration for each category
+      const duration = getQuestionDurationSeconds(q);
+      const expectedDuration =
+        qNum <= 4 ? 7.5 : qNum <= 6 ? 5 : qNum <= 8 ? 10 : 15;
+      if (duration !== expectedDuration) {
+        throw new Error(
+          `Expected duration ${expectedDuration}s for Q${qNum}, got ${duration}s`,
+        );
       }
 
       // Verify category assignments according to spec

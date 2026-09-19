@@ -46,11 +46,11 @@ export function CompletedPage() {
             <Award className="size-9" />
           </div>
           <CardTitle className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-            Quiz Completed!
+            퀴즈 완료!
           </CardTitle>
           <CardDescription className="text-base text-muted-foreground">
-            All {questions.length} questions finished! Take your time to wrap up
-            your calculations on paper.
+            총 {questions.length}문제를 모두 마쳤습니다! 종이에 남은 계산을
+            편하게 마무리해 보세요.
           </CardDescription>
         </CardHeader>
 
@@ -58,12 +58,11 @@ export function CompletedPage() {
           <div className="rounded-xl border bg-muted/40 p-4 text-left space-y-3">
             <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
               <PencilLine className="size-4 text-primary" />
-              Finish Your Calculations
+              계산 마무리하기
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              Answers are hidden so you can finish writing without spoilers.
-              Whenever you are ready to review and compare your handwritten
-              work, click the button below.
+              스포일러를 방지하기 위해 정답을 숨겨두었습니다. 종이에 계산을 마친
+              후 아래 버튼을 눌러 정답을 확인하세요.
             </p>
           </div>
         </CardContent>
@@ -76,19 +75,19 @@ export function CompletedPage() {
           >
             <Link to="/results" state={{ questions }}>
               <Eye className="size-5" />
-              Show Answers
+              정답 확인하기
             </Link>
           </Button>
 
           <div className="flex w-full items-center justify-center gap-3 pt-2">
             <Button variant="outline" asChild size="sm" className="gap-1.5">
               <Link to="/quiz">
-                <RotateCcw className="size-3.5" /> Start New Quiz
+                <RotateCcw className="size-3.5" /> 새 퀴즈 시작
               </Link>
             </Button>
             <Button variant="ghost" size="sm" asChild className="gap-1.5">
               <Link to="/">
-                <Home className="size-3.5" /> Home
+                <Home className="size-3.5" /> 홈으로
               </Link>
             </Button>
           </div>

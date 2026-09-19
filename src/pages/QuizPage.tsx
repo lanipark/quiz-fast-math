@@ -141,7 +141,7 @@ export function QuizPage() {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="animate-pulse text-muted-foreground">
-          Preparing quiz...
+          퀴즈를 준비하고 있습니다...
         </div>
       </div>
     );
@@ -177,7 +177,7 @@ export function QuizPage() {
         <CardFooter className="flex items-center justify-between border-t bg-muted/20 px-6 py-4">
           <Button variant="ghost" size="sm" asChild>
             <Link to="/">
-              <ArrowLeft className="size-4" /> Exit
+              <ArrowLeft className="size-4" /> 나가기
             </Link>
           </Button>
 
@@ -190,11 +190,11 @@ export function QuizPage() {
             >
               {isPaused ? (
                 <>
-                  <Play className="size-4 fill-current" /> Resume
+                  <Play className="size-4 fill-current" /> 이어하기
                 </>
               ) : (
                 <>
-                  <Pause className="size-4" /> Pause
+                  <Pause className="size-4" /> 일시정지
                 </>
               )}
             </Button>
@@ -205,9 +205,9 @@ export function QuizPage() {
               onClick={handleSkip}
               className="gap-1.5"
             >
-              <SkipForward className="size-4" /> Skip
+              <SkipForward className="size-4" /> 건너뛰기
               <kbd className="ml-1 hidden sm:inline-block rounded bg-muted px-1.5 py-0.5 text-[10px] font-mono font-medium text-muted-foreground border">
-                Space
+                스페이스바
               </kbd>
             </Button>
           </div>
