@@ -356,6 +356,13 @@ export function evaluateArithmetic(expr: string): ArithmeticEvalResult {
 function generateSumSequence(target: number, count: number): string {
   if (count === 1) return `${target}`;
   if (count === 2) {
+    if (target >= 1000) {
+      const minA = Math.max(10, target - 999);
+      const maxA = Math.min(999, target - 10);
+      const a = getRandomInt(minA, maxA);
+      const b = target - a;
+      return `${a} + ${b}`;
+    }
     if (Math.random() < 0.6 && target >= 20) {
       const a = getRandomInt(
         Math.max(5, Math.floor(target * 0.2)),
@@ -373,71 +380,143 @@ function generateSumSequence(target: number, count: number): string {
     }
   }
 
-  const numbers: number[] = [];
-  const operators: ("+" | "-")[] = [];
+  for (let attempt = 0; attempt < 300; attempt++) {
+    const numbers: number[] = [];
+    const operators: ("+" | "-")[] = [];
 
-  let runningTotal = getRandomInt(
-    Math.max(15, Math.floor(target * 0.4)),
-    Math.max(30, Math.floor(target * 1.3)),
-  );
-  numbers.push(runningTotal);
+    // When count >= 3, at least one number in the series must be 2-digit (10..99).
+    const twoDigitIdx = getRandomInt(1, count - 2);
 
-  for (let i = 1; i < count - 1; i++) {
-    const canSubtract = runningTotal > 30;
-    let op: "+" | "-" = "+";
-    if (canSubtract) {
-      if (runningTotal < target * 0.5) op = "+";
-      else if (runningTotal > target * 1.8) op = "-";
-      else op = Math.random() < 0.5 ? "+" : "-";
+    let minFirst = 15;
+    let maxFirst = 999;
+    if (target < 1000) {
+      minFirst = Math.max(15, Math.floor(target * 0.4));
+      maxFirst = Math.min(999, Math.max(30, Math.floor(target * 1.3)));
     } else {
-      op = "+";
+      const avg = Math.floor(target / count);
+      minFirst = Math.max(100, Math.floor(avg * 0.7));
+      maxFirst = Math.min(950, Math.ceil(avg * 1.3));
+    }
+    let runningTotal = getRandomInt(minFirst, maxFirst);
+    numbers.push(runningTotal);
+
+    for (let i = 1; i < count - 1; i++) {
+      const mustBe2Digit = i === twoDigitIdx;
+      let op: "+" | "-" = "+";
+
+      const canSubtract =
+        runningTotal > 100 && (target < 1000 || runningTotal > target * 0.6);
+      if (canSubtract) {
+        if (runningTotal < target * 0.6) op = "+";
+        else if (runningTotal > target * 1.4) op = "-";
+        else op = Math.random() < 0.4 ? "+" : "-";
+      } else {
+        op = "+";
+      }
+
+      let val = 0;
+      if (mustBe2Digit) {
+        if (op === "-") {
+          const maxSub = Math.min(99, runningTotal - 10);
+          if (maxSub >= 10) {
+            val = getRandomInt(10, maxSub);
+          } else {
+            op = "+";
+            val = getRandomInt(10, 99);
+          }
+        } else {
+          val = getRandomInt(10, 99);
+        }
+      } else {
+        if (op === "-") {
+          const maxSub = Math.min(
+            999,
+            Math.min(runningTotal - 10, Math.max(20, Math.floor(target * 0.6))),
+          );
+          val = getRandomInt(10, Math.max(10, maxSub));
+        } else {
+          const remainingTerms = count - i;
+          const needed = target - runningTotal;
+          const estPerTerm = Math.max(20, Math.floor(needed / remainingTerms));
+          const maxAdd = Math.min(
+            999,
+            Math.max(50, Math.ceil(estPerTerm * 1.4)),
+          );
+          const minAdd = Math.min(
+            maxAdd,
+            Math.max(10, Math.floor(estPerTerm * 0.6)),
+          );
+          val = getRandomInt(minAdd, maxAdd);
+        }
+      }
+
+      if (op === "-") {
+        runningTotal -= val;
+      } else {
+        runningTotal += val;
+      }
+      operators.push(op);
+      numbers.push(val);
     }
 
-    let val = 0;
-    if (op === "-") {
-      const maxSub = Math.min(
-        runningTotal - 10,
-        Math.max(20, Math.floor(target * 0.6)),
-      );
-      val = getRandomInt(10, Math.max(10, maxSub));
-      runningTotal -= val;
-    } else {
-      val = getRandomInt(10, Math.max(20, Math.floor(target * 0.6)));
-      runningTotal += val;
-    }
-    operators.push(op);
-    numbers.push(val);
-  }
-
-  const diff = target - runningTotal;
-  if (diff > 0) {
-    operators.push("+");
-    numbers.push(diff);
-  } else if (diff < 0) {
-    operators.push("-");
-    numbers.push(-diff);
-  } else {
-    const lastOp = operators[operators.length - 1];
-    const lastVal = numbers[numbers.length - 1];
-    if (lastOp === "+") {
-      numbers[numbers.length - 1] = lastVal + 15;
-      operators.push("-");
-      numbers.push(15);
-    } else {
-      numbers[numbers.length - 1] = lastVal + 15;
+    const diff = target - runningTotal;
+    if (diff > 0) {
       operators.push("+");
-      numbers.push(15);
+      numbers.push(diff);
+    } else if (diff < 0) {
+      operators.push("-");
+      numbers.push(-diff);
+    } else {
+      const lastOp = operators[operators.length - 1];
+      const lastVal = numbers[numbers.length - 1];
+      if (lastOp === "+") {
+        numbers[numbers.length - 1] = lastVal + 15;
+        operators.push("-");
+        numbers.push(15);
+      } else {
+        numbers[numbers.length - 1] = lastVal + 15;
+        operators.push("+");
+        numbers.push(15);
+      }
     }
+
+    // Verify all numbers > 0 and <= 999 (NO 4-digit numbers in add/sub)
+    if (numbers.some((n) => n <= 0 || n >= 1000)) continue;
+
+    // Verify intermediate totals >= 0
+    let ok = true;
+    let r = numbers[0];
+    for (let i = 0; i < operators.length; i++) {
+      if (operators[i] === "+") r += numbers[i + 1];
+      else r -= numbers[i + 1];
+      if (r < 0) {
+        ok = false;
+        break;
+      }
+    }
+    if (!ok || r !== target) continue;
+
+    // Verify at least one number in the series has 2 digits (10..99)
+    if (!numbers.some((n) => n >= 10 && n <= 99)) continue;
+
+    let expr = `${numbers[0]}`;
+    for (let i = 0; i < operators.length; i++) {
+      expr += ` ${operators[i]} ${numbers[i + 1]}`;
+    }
+    return expr;
   }
 
-  let expr = `${numbers[0]}`;
-  for (let i = 0; i < operators.length; i++) {
-    expr += ` ${operators[i]} ${numbers[i + 1]}`;
-  }
-  return expr;
+  throw new Error(
+    `Failed to generate sum sequence for target ${target}, count ${count}`,
+  );
 }
 
-function pickMulFactors(): [number, number] {
+function getMaxBracketTarget(count: number): number {
+  if (count <= 2) return 1800;
+  return Math.min(4800, (count - 1) * 900 + 80);
+}
+
+function pickMulFactorsForCount(count: number): [number, number] {
   const mode = getRandomInt(1, 3);
   if (mode === 1) {
     // 3-digit x 1-digit
@@ -450,10 +529,11 @@ function pickMulFactors(): [number, number] {
     const b = getRandomInt(10, 99);
     return [a, b];
   } else {
-    // 4-digit x 1-digit
-    const a = getRandomInt(1000, 4999);
+    // 4-digit x 1-digit: bracket sum can grow up to 4 digits (1000..maxTarget)
+    const maxTarget = getMaxBracketTarget(count);
+    const a = getRandomInt(1000, Math.max(1000, maxTarget));
     const b = getRandomInt(2, 9);
-    return Math.random() < 0.5 ? [a, b] : [b, a];
+    return [a, b];
   }
 }
 
@@ -462,12 +542,9 @@ function tryGenerateComplexBracket(totalNumbers: number): string {
 
   if (archetype === 1) {
     // (Seq_K) x factor or factor x (Seq_K)
-    const [fa, fb] = pickMulFactors();
-    const isFirstBracket =
-      Math.abs(fa).toString().length >= Math.abs(fb).toString().length;
-    const bracketTarget = isFirstBracket ? fa : fb;
-    const factor = isFirstBracket ? fb : fa;
-    const seq = generateSumSequence(bracketTarget, totalNumbers - 1);
+    const kSeq = totalNumbers - 1;
+    const [bracketTarget, factor] = pickMulFactorsForCount(kSeq);
+    const seq = generateSumSequence(bracketTarget, kSeq);
     return Math.random() < 0.5
       ? `(${seq}) × ${factor}`
       : `${factor} × (${seq})`;
@@ -475,13 +552,9 @@ function tryGenerateComplexBracket(totalNumbers: number): string {
 
   if (archetype === 2) {
     // (Seq_K1) x factor + rest
-    const [fa, fb] = pickMulFactors();
-    const isFirstBracket =
-      Math.abs(fa).toString().length >= Math.abs(fb).toString().length;
-    const bracketTarget = isFirstBracket ? fa : fb;
-    const factor = isFirstBracket ? fb : fa;
     const k1 = Math.max(2, totalNumbers - 2);
     const k2 = totalNumbers - 1 - k1;
+    const [bracketTarget, factor] = pickMulFactorsForCount(k1);
     const seq1 = generateSumSequence(bracketTarget, k1);
     const mulResult = bracketTarget * factor;
     const restTarget = getRandomInt(
@@ -497,14 +570,16 @@ function tryGenerateComplexBracket(totalNumbers: number): string {
 
   if (archetype === 3) {
     // (Seq_K1) ÷ divisor (+ rest)
-    const divisor = getRandomInt(2, 25);
-    const quotient = getRandomInt(15, 300);
-    const dividend = divisor * quotient;
     const k1 =
       totalNumbers >= 5 && Math.random() < 0.5
         ? totalNumbers - 2
         : totalNumbers - 1;
     const k2 = totalNumbers - k1 - 1;
+    const maxDiv = getMaxBracketTarget(k1);
+    const divisor = getRandomInt(2, 25);
+    const maxQuotient = Math.floor(maxDiv / divisor);
+    const quotient = getRandomInt(15, Math.max(15, maxQuotient));
+    const dividend = divisor * quotient;
     const seq1 = generateSumSequence(dividend, k1);
     if (k2 === 0) {
       return `(${seq1}) ÷ ${divisor}`;
@@ -532,7 +607,10 @@ function tryGenerateComplexBracket(totalNumbers: number): string {
   }
 
   // archetype === 5: (a x b + Seq_K) + rest
-  const [fa, fb] = pickMulFactors();
+  const [fa, fb] =
+    Math.random() < 0.5
+      ? [getRandomInt(100, 999), getRandomInt(2, 9)]
+      : [getRandomInt(10, 99), getRandomInt(10, 99)];
   const kInner = Math.max(1, totalNumbers - 3);
   const kOuter = totalNumbers - 2 - kInner;
   const innerRest = getRandomInt(10, 300);
@@ -554,6 +632,94 @@ function tryGenerateComplexBracket(totalNumbers: number): string {
   }
 }
 
+/**
+ * Checks if parenthesized add/subtract sequences of length > 2 have at least one 2-digit number (10..99).
+ */
+export function checkBracketAddSubTwoDigitRule(equation: string): boolean {
+  const matches = equation.match(/\(([^()]+)\)/g);
+  if (!matches) return true;
+
+  for (const m of matches) {
+    const inner = m.slice(1, -1).trim();
+
+    // If inner contains no multiplication or division, it's a pure add/subtract series
+    if (
+      !inner.includes("×") &&
+      !inner.includes("÷") &&
+      !inner.includes("*") &&
+      !inner.includes("/")
+    ) {
+      const nums = inner.match(/\b\d+\b/g)?.map(Number) || [];
+      if (nums.length > 2) {
+        const has2Digit = nums.some((n) => n >= 10 && n <= 99);
+        if (!has2Digit) return false;
+      }
+    } else {
+      // If inner contains multiplication/division (e.g. archetype 5: a × b ± seq)
+      // Find any pure addition/subtraction sub-series of numbers with length > 2
+      const parts = inner
+        .split(/(?=[+-])|(?<=[+-])/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+      let currentAddSubNums: number[] = [];
+      for (const part of parts) {
+        if (part === "+" || part === "-") continue;
+        if (/^\d+$/.test(part)) {
+          currentAddSubNums.push(Number(part));
+        } else {
+          // Term has × or ÷ (e.g. "12 × 5")
+          if (currentAddSubNums.length > 2) {
+            if (!currentAddSubNums.some((n) => n >= 10 && n <= 99))
+              return false;
+          }
+          currentAddSubNums = [];
+        }
+      }
+      if (currentAddSubNums.length > 2) {
+        if (!currentAddSubNums.some((n) => n >= 10 && n <= 99)) return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Checks that no number in any addition/subtraction sequence is 4-digit (>= 1000).
+ * Standalone factors in multiplication (e.g. 1200 x 3) or evaluated sums are allowed to be 4-digit.
+ */
+export function checkNoFourDigitInAddSub(equation: string): boolean {
+  // Check inside all parentheses
+  const matches = equation.match(/\(([^()]+)\)/g) || [];
+  for (const m of matches) {
+    const inner = m.slice(1, -1).trim();
+    const terms = inner
+      .split(/[+-]/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    for (const term of terms) {
+      if (/^\d+$/.test(term)) {
+        if (Number(term) >= 1000) return false;
+      }
+    }
+  }
+
+  // Also check outside parentheses
+  const outer = equation.replace(/\([^()]+\)/g, "P");
+  const outerTerms = outer
+    .split(/[+-]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  for (const term of outerTerms) {
+    if (/^\d+$/.test(term)) {
+      if (Number(term) >= 1000) return false;
+    }
+  }
+
+  return true;
+}
+
 function generateComplexBracket(totalNumbers: number): {
   equation: string;
   answer: number;
@@ -570,6 +736,12 @@ function generateComplexBracket(totalNumbers: number): {
 
       // Verify has parenthesis
       if (!eq.includes("(") || !eq.includes(")")) continue;
+
+      // Verify bracket add/sub 2-digit rule
+      if (!checkBracketAddSubTwoDigitRule(eq)) continue;
+
+      // Verify no 4-digit numbers in add/sub sequence
+      if (!checkNoFourDigitInAddSub(eq)) continue;
 
       // Verify answer is positive integer
       if (res.value <= 0 || !Number.isInteger(res.value) || res.value > 50000) {
@@ -715,6 +887,16 @@ export function validateQuestion(item: QuizItem): boolean {
           `Multiplication constraint violated in bracket-mul: ${m.a} × ${m.b}`,
         );
       }
+    }
+    if (!checkBracketAddSubTwoDigitRule(item.equation)) {
+      throw new Error(
+        `Bracket-mul equation violates 2-digit rule in add/sub series: ${item.equation}`,
+      );
+    }
+    if (!checkNoFourDigitInAddSub(item.equation)) {
+      throw new Error(
+        `Bracket-mul equation has 4-digit number in add/sub sequence: ${item.equation}`,
+      );
     }
   }
 

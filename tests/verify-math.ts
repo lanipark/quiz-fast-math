@@ -4,6 +4,8 @@ import {
   validateQuestion,
   evaluateArithmetic,
   isValidMultiplicationFactors,
+  checkBracketAddSubTwoDigitRule,
+  checkNoFourDigitInAddSub,
 } from "../src/lib/math.ts";
 import { getQuestionDurationSeconds } from "../src/types/quiz.ts";
 
@@ -135,6 +137,16 @@ for (let setIdx = 0; setIdx < 10000; setIdx++) {
               `Invalid multiplication factors in Q${qNum}: ${m.a} × ${m.b}`,
             );
           }
+        }
+        if (!checkBracketAddSubTwoDigitRule(q.equation)) {
+          throw new Error(
+            `Bracket-mul Q${qNum} violates 2-digit rule in add/sub series: ${q.equation}`,
+          );
+        }
+        if (!checkNoFourDigitInAddSub(q.equation)) {
+          throw new Error(
+            `Bracket-mul Q${qNum} has 4-digit number in add/sub sequence: ${q.equation}`,
+          );
         }
       }
     } catch (err) {
