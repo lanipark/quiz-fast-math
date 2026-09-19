@@ -44,17 +44,25 @@ export function QuizDisplay({
       : undefined);
 
   // Sequential flash timing calculations for 5x3-digit questions
-  // Each number is shown for (secondsPerTerm - hideGapSeconds) then hidden for hideGapSeconds before the next number
+  // 1.4s visible, 0.1s clean (hidden/blank) -> 1.5s per term
   const totalTerms = columnTerms?.length ?? 0;
-  const secondsPerTerm = totalTerms > 0 ? totalSeconds / totalTerms : 2.0;
-  const hideGapSeconds = 0.3; // 300ms clean blank gap between numbers
+  const isFlashQuiz =
+    question.category === "five-3digit-add-sub" ||
+    question.category === "five-4digit-add-sub";
+
+  const visibleSeconds = isFlashQuiz ? 1.4 : 1.7;
+  const hideGapSeconds = isFlashQuiz ? 0.1 : 0.3;
+  const secondsPerTerm =
+    totalTerms > 0
+      ? totalSeconds / totalTerms
+      : visibleSeconds + hideGapSeconds;
   const elapsed = Math.max(0, totalSeconds - remainingSeconds);
   const currentTermIndex =
     totalTerms > 0
       ? Math.min(totalTerms - 1, Math.floor(elapsed / secondsPerTerm))
       : 0;
   const timeInTerm = elapsed - currentTermIndex * secondsPerTerm;
-  const isVisible = timeInTerm < Math.max(0.1, secondsPerTerm - hideGapSeconds);
+  const isVisible = timeInTerm < visibleSeconds;
   const currentTerm = columnTerms ? columnTerms[currentTermIndex] : null;
 
   return (
@@ -108,7 +116,7 @@ export function QuizDisplay({
             {/* Flash Number Display with fixed height to prevent layout shift */}
             <div className="h-28 sm:h-32 flex items-center justify-center w-full">
               <div
-                className={`flex items-center justify-center font-mono font-bold select-none tabular-nums text-6xl sm:text-7xl md:text-8xl tracking-wider transition-opacity duration-75 ${
+                className={`flex items-center justify-center font-mono font-bold select-none tabular-nums text-6xl sm:text-7xl md:text-8xl tracking-wider ${
                   isVisible ? "opacity-100" : "opacity-0"
                 }`}
               >

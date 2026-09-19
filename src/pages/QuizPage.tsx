@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router";
 import { generateQuizSet } from "@/lib/math";
 import {
   DEFAULT_QUIZ_CONFIG,
+  getQuestionDurationSeconds,
   type QuizItem,
   type QuizPhase,
 } from "@/types/quiz";
@@ -21,8 +22,8 @@ export function QuizPage() {
   );
   const [currentIndex, setCurrentIndex] = useState(0);
   const [phase, setPhase] = useState<QuizPhase>("question");
-  const [remainingSeconds, setRemainingSeconds] = useState(
-    config.questionDurationSeconds,
+  const [remainingSeconds, setRemainingSeconds] = useState(() =>
+    getQuestionDurationSeconds(questions[0], config.questionDurationSeconds),
   );
   const [isPaused, setIsPaused] = useState(false);
 
@@ -35,7 +36,7 @@ export function QuizPage() {
       return;
     }
 
-    const tickMs = 50;
+    const tickMs = 25;
     const tickSec = tickMs / 1000;
 
     timerRef.current = window.setInterval(() => {
@@ -53,9 +54,13 @@ export function QuizPage() {
         } else {
           // Wait timer ended -> move to next question or end quiz
           if (currentIndex + 1 < questions.length) {
-            setCurrentIndex((idx) => idx + 1);
+            const nextIdx = currentIndex + 1;
+            setCurrentIndex(nextIdx);
             setPhase("question");
-            return config.questionDurationSeconds;
+            return getQuestionDurationSeconds(
+              questions[nextIdx],
+              config.questionDurationSeconds,
+            );
           } else {
             // All questions finished! Save to sessionStorage and navigate to results
             if (timerRef.current) clearInterval(timerRef.current);
@@ -87,9 +92,15 @@ export function QuizPage() {
     } else {
       // Skip wait phase directly to next question or results
       if (currentIndex + 1 < questions.length) {
-        setCurrentIndex((idx) => idx + 1);
+        const nextIdx = currentIndex + 1;
+        setCurrentIndex(nextIdx);
         setPhase("question");
-        setRemainingSeconds(config.questionDurationSeconds);
+        setRemainingSeconds(
+          getQuestionDurationSeconds(
+            questions[nextIdx],
+            config.questionDurationSeconds,
+          ),
+        );
       } else {
         try {
           sessionStorage.setItem("lastQuizSession", JSON.stringify(questions));
@@ -136,6 +147,11 @@ export function QuizPage() {
     );
   }
 
+  const currentQuestionDuration = getQuestionDurationSeconds(
+    currentQuestion,
+    config.questionDurationSeconds,
+  );
+
   return (
     <div className="flex w-full min-h-[80vh] items-center justify-center p-4">
       <Card className="w-full max-w-2xl shadow-xl border-border/80">
@@ -145,7 +161,7 @@ export function QuizPage() {
               question={currentQuestion}
               totalQuestions={config.totalQuestions}
               remainingSeconds={remainingSeconds}
-              totalSeconds={config.questionDurationSeconds}
+              totalSeconds={currentQuestionDuration}
             />
           ) : (
             <WaitProgress

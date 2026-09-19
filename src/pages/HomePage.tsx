@@ -36,7 +36,7 @@ export function HomePage() {
               <li className="flex items-start gap-2">
                 <span className="font-medium text-foreground min-w-5">1.</span>
                 <span>
-                  <strong>10s equation display</strong>, then{" "}
+                  <strong>Flash / 10s equation display</strong>, then{" "}
                   <strong>10s writing countdown</strong> per question.
                 </span>
               </li>
@@ -46,8 +46,8 @@ export function HomePage() {
                 </span>
                 <span>
                   <strong>5 × 3-digit addition/subtraction</strong> (flash
-                  numbers shown one by one for 2s each, intermediate values
-                  always ≥ 0).
+                  numbers shown one by one: 1.4s visible, 0.1s clean;
+                  intermediate values always ≥ 0).
                 </span>
               </li>
               <li className="flex items-start gap-2">
