@@ -2,6 +2,8 @@ import {
   generateQuizSet,
   evaluateEquation,
   validateQuestion,
+  evaluateArithmetic,
+  isValidMultiplicationFactors,
 } from "../src/lib/math.ts";
 
 console.log(
@@ -97,22 +99,31 @@ for (let setIdx = 0; setIdx < 10000; setIdx++) {
             `Expected bracket-mul for Q${qNum}, got ${q.category}`,
           );
         }
-        const match = q.equation.match(
-          /^\((\d+)\s*\+\s*(\d+)\s*-\s*(\d+)\)\s*×\s*(\d+)$/,
-        );
-        if (!match)
+        const numMatches = q.equation.match(/\b\d+\b/g) || [];
+        if (numMatches.length < 4 || numMatches.length > 7) {
           throw new Error(
-            `Invalid format for bracket-mul in Q${qNum}: ${q.equation}`,
+            `Expected 4 to 7 numbers in bracket-mul Q${qNum}, got ${numMatches.length}: ${q.equation}`,
           );
-        const a = Number(match[1]);
-        const b = Number(match[2]);
-        const c = Number(match[3]);
-        const d = Number(match[4]);
-        const inner = a + b - c;
-        if (inner < 100 || inner > 999 || d < 10 || d > 99) {
+        }
+        if (!q.equation.includes("(") || !q.equation.includes(")")) {
           throw new Error(
-            `Constraints violated in bracket-mul Q${qNum}: (${a}+${b}-${c}) × ${d}`,
+            `Expected parentheses in bracket-mul Q${qNum}: ${q.equation}`,
           );
+        }
+        const res = evaluateArithmetic(q.equation);
+        for (const d of res.divisions) {
+          if (d.b <= 1 || d.remainder !== 0) {
+            throw new Error(
+              `Non-zero remainder in division in Q${qNum}: ${d.a} ÷ ${d.b}`,
+            );
+          }
+        }
+        for (const m of res.multiplications) {
+          if (!isValidMultiplicationFactors(m.a, m.b)) {
+            throw new Error(
+              `Invalid multiplication factors in Q${qNum}: ${m.a} × ${m.b}`,
+            );
+          }
         }
       }
     } catch (err) {

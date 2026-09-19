@@ -73,8 +73,9 @@ export function HomePage() {
                   Q9–10:
                 </span>
                 <span>
-                  <strong>(a + b - c) × d</strong> with 2-digit <em>d</em> and
-                  3-digit <em>(a + b - c)</em>.
+                  <strong>Mixed operations with parentheses</strong> (4–7
+                  numbers, may include 4×1 / 3×1 / 2×2 multiplication and exact
+                  division).
                 </span>
               </li>
             </ul>

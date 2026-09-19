@@ -217,45 +217,417 @@ export function generateDivision(id: number, questionNumber: number): QuizItem {
   };
 }
 
+export interface ArithmeticEvalResult {
+  value: number;
+  divisions: { a: number; b: number; remainder: number }[];
+  multiplications: { a: number; b: number }[];
+}
+
+export function isValidMultiplicationFactors(a: number, b: number): boolean {
+  const da = Math.abs(a).toString().length;
+  const db = Math.abs(b).toString().length;
+
+  // 4-digit x 1-digit (or 1-digit x 4-digit)
+  if ((da === 4 && db === 1) || (da === 1 && db === 4)) {
+    return (da === 1 ? a : b) >= 2;
+  }
+  // 3-digit x 1-digit (or 1-digit x 3-digit)
+  if ((da === 3 && db === 1) || (da === 1 && db === 3)) {
+    return (da === 1 ? a : b) >= 2;
+  }
+  // 2-digit x 2-digit
+  if (da === 2 && db === 2) {
+    return a >= 10 && b >= 10;
+  }
+  return false;
+}
+
+export function evaluateArithmetic(expr: string): ArithmeticEvalResult {
+  const normalized = expr
+    .replace(/×/g, "*")
+    .replace(/÷/g, "/")
+    .replace(/\s+/g, "");
+
+  const tokens: (number | string)[] = [];
+  let i = 0;
+  while (i < normalized.length) {
+    const ch = normalized[i];
+    if (ch >= "0" && ch <= "9") {
+      let numStr = "";
+      while (
+        i < normalized.length &&
+        normalized[i] >= "0" &&
+        normalized[i] <= "9"
+      ) {
+        numStr += normalized[i];
+        i++;
+      }
+      tokens.push(Number(numStr));
+    } else if ("+-*/()".includes(ch)) {
+      tokens.push(ch);
+      i++;
+    } else {
+      throw new Error(`Unexpected character in expression: ${ch}`);
+    }
+  }
+
+  let pos = 0;
+  const divisions: { a: number; b: number; remainder: number }[] = [];
+  const multiplications: { a: number; b: number }[] = [];
+
+  function parseExpression(): number {
+    let result = parseTerm();
+    while (
+      pos < tokens.length &&
+      (tokens[pos] === "+" || tokens[pos] === "-")
+    ) {
+      const op = tokens[pos++];
+      const nextTerm = parseTerm();
+      if (op === "+") {
+        result += nextTerm;
+      } else {
+        result -= nextTerm;
+        if (result < 0) {
+          throw new Error(`Intermediate result negative: ${result}`);
+        }
+      }
+    }
+    return result;
+  }
+
+  function parseTerm(): number {
+    let result = parseFactor();
+    while (
+      pos < tokens.length &&
+      (tokens[pos] === "*" || tokens[pos] === "/")
+    ) {
+      const op = tokens[pos++];
+      const nextFactor = parseFactor();
+      if (op === "*") {
+        multiplications.push({ a: result, b: nextFactor });
+        result *= nextFactor;
+      } else {
+        if (nextFactor === 0) {
+          throw new Error("Division by zero");
+        }
+        const rem = result % nextFactor;
+        divisions.push({ a: result, b: nextFactor, remainder: rem });
+        if (rem !== 0) {
+          throw new Error(
+            `Division has non-zero remainder: ${result} / ${nextFactor}`,
+          );
+        }
+        result = Math.floor(result / nextFactor);
+      }
+    }
+    return result;
+  }
+
+  function parseFactor(): number {
+    if (pos >= tokens.length) {
+      throw new Error("Unexpected end of expression");
+    }
+    const token = tokens[pos++];
+    if (typeof token === "number") {
+      return token;
+    }
+    if (token === "(") {
+      const val = parseExpression();
+      if (pos >= tokens.length || tokens[pos++] !== ")") {
+        throw new Error("Missing closing parenthesis");
+      }
+      return val;
+    }
+    throw new Error(`Unexpected token: ${token}`);
+  }
+
+  const finalValue = parseExpression();
+  if (pos !== tokens.length) {
+    throw new Error(`Extra tokens remaining at pos ${pos}`);
+  }
+
+  return {
+    value: finalValue,
+    divisions,
+    multiplications,
+  };
+}
+
+function generateSumSequence(target: number, count: number): string {
+  if (count === 1) return `${target}`;
+  if (count === 2) {
+    if (Math.random() < 0.6 && target >= 20) {
+      const a = getRandomInt(
+        Math.max(5, Math.floor(target * 0.2)),
+        Math.min(target - 5, Math.floor(target * 0.8)),
+      );
+      const b = target - a;
+      return `${a} + ${b}`;
+    } else {
+      const b = getRandomInt(
+        10,
+        Math.max(20, Math.min(300, Math.floor(target * 0.8))),
+      );
+      const a = target + b;
+      return `${a} - ${b}`;
+    }
+  }
+
+  const numbers: number[] = [];
+  const operators: ("+" | "-")[] = [];
+
+  let runningTotal = getRandomInt(
+    Math.max(15, Math.floor(target * 0.4)),
+    Math.max(30, Math.floor(target * 1.3)),
+  );
+  numbers.push(runningTotal);
+
+  for (let i = 1; i < count - 1; i++) {
+    const canSubtract = runningTotal > 30;
+    let op: "+" | "-" = "+";
+    if (canSubtract) {
+      if (runningTotal < target * 0.5) op = "+";
+      else if (runningTotal > target * 1.8) op = "-";
+      else op = Math.random() < 0.5 ? "+" : "-";
+    } else {
+      op = "+";
+    }
+
+    let val = 0;
+    if (op === "-") {
+      const maxSub = Math.min(
+        runningTotal - 10,
+        Math.max(20, Math.floor(target * 0.6)),
+      );
+      val = getRandomInt(10, Math.max(10, maxSub));
+      runningTotal -= val;
+    } else {
+      val = getRandomInt(10, Math.max(20, Math.floor(target * 0.6)));
+      runningTotal += val;
+    }
+    operators.push(op);
+    numbers.push(val);
+  }
+
+  const diff = target - runningTotal;
+  if (diff > 0) {
+    operators.push("+");
+    numbers.push(diff);
+  } else if (diff < 0) {
+    operators.push("-");
+    numbers.push(-diff);
+  } else {
+    const lastOp = operators[operators.length - 1];
+    const lastVal = numbers[numbers.length - 1];
+    if (lastOp === "+") {
+      numbers[numbers.length - 1] = lastVal + 15;
+      operators.push("-");
+      numbers.push(15);
+    } else {
+      numbers[numbers.length - 1] = lastVal + 15;
+      operators.push("+");
+      numbers.push(15);
+    }
+  }
+
+  let expr = `${numbers[0]}`;
+  for (let i = 0; i < operators.length; i++) {
+    expr += ` ${operators[i]} ${numbers[i + 1]}`;
+  }
+  return expr;
+}
+
+function pickMulFactors(): [number, number] {
+  const mode = getRandomInt(1, 3);
+  if (mode === 1) {
+    // 3-digit x 1-digit
+    const a = getRandomInt(100, 999);
+    const b = getRandomInt(2, 9);
+    return Math.random() < 0.5 ? [a, b] : [b, a];
+  } else if (mode === 2) {
+    // 2-digit x 2-digit
+    const a = getRandomInt(10, 99);
+    const b = getRandomInt(10, 99);
+    return [a, b];
+  } else {
+    // 4-digit x 1-digit
+    const a = getRandomInt(1000, 4999);
+    const b = getRandomInt(2, 9);
+    return Math.random() < 0.5 ? [a, b] : [b, a];
+  }
+}
+
+function tryGenerateComplexBracket(totalNumbers: number): string {
+  const archetype = getRandomInt(1, 5);
+
+  if (archetype === 1) {
+    // (Seq_K) x factor or factor x (Seq_K)
+    const [fa, fb] = pickMulFactors();
+    const isFirstBracket =
+      Math.abs(fa).toString().length >= Math.abs(fb).toString().length;
+    const bracketTarget = isFirstBracket ? fa : fb;
+    const factor = isFirstBracket ? fb : fa;
+    const seq = generateSumSequence(bracketTarget, totalNumbers - 1);
+    return Math.random() < 0.5
+      ? `(${seq}) × ${factor}`
+      : `${factor} × (${seq})`;
+  }
+
+  if (archetype === 2) {
+    // (Seq_K1) x factor + rest
+    const [fa, fb] = pickMulFactors();
+    const isFirstBracket =
+      Math.abs(fa).toString().length >= Math.abs(fb).toString().length;
+    const bracketTarget = isFirstBracket ? fa : fb;
+    const factor = isFirstBracket ? fb : fa;
+    const k1 = Math.max(2, totalNumbers - 2);
+    const k2 = totalNumbers - 1 - k1;
+    const seq1 = generateSumSequence(bracketTarget, k1);
+    const mulResult = bracketTarget * factor;
+    const restTarget = getRandomInt(
+      10,
+      Math.min(500, Math.floor(mulResult * 0.5)),
+    );
+    const seq2 = generateSumSequence(restTarget, k2);
+    const op = Math.random() < 0.5 ? "+" : "-";
+    return op === "+"
+      ? `(${seq1}) × ${factor} + ${seq2}`
+      : `(${seq1}) × ${factor} - ${seq2}`;
+  }
+
+  if (archetype === 3) {
+    // (Seq_K1) ÷ divisor (+ rest)
+    const divisor = getRandomInt(2, 25);
+    const quotient = getRandomInt(15, 300);
+    const dividend = divisor * quotient;
+    const k1 =
+      totalNumbers >= 5 && Math.random() < 0.5
+        ? totalNumbers - 2
+        : totalNumbers - 1;
+    const k2 = totalNumbers - k1 - 1;
+    const seq1 = generateSumSequence(dividend, k1);
+    if (k2 === 0) {
+      return `(${seq1}) ÷ ${divisor}`;
+    } else {
+      const restTarget = getRandomInt(10, 200);
+      const seq2 = generateSumSequence(restTarget, k2);
+      const op = Math.random() < 0.5 ? "+" : "-";
+      if (op === "-" && quotient < restTarget) {
+        return `(${seq1}) ÷ ${divisor} + ${seq2}`;
+      }
+      return `(${seq1}) ÷ ${divisor} ${op} ${seq2}`;
+    }
+  }
+
+  if (archetype === 4) {
+    // (Seq_K1) x (Seq_K2)
+    // 2-digit x 2-digit
+    const fa = getRandomInt(10, 99);
+    const fb = getRandomInt(10, 99);
+    const k1 = Math.floor(totalNumbers / 2);
+    const k2 = totalNumbers - k1;
+    const seq1 = generateSumSequence(fa, k1);
+    const seq2 = generateSumSequence(fb, k2);
+    return `(${seq1}) × (${seq2})`;
+  }
+
+  // archetype === 5: (a x b + Seq_K) + rest
+  const [fa, fb] = pickMulFactors();
+  const kInner = Math.max(1, totalNumbers - 3);
+  const kOuter = totalNumbers - 2 - kInner;
+  const innerRest = getRandomInt(10, 300);
+  const seqInner = generateSumSequence(innerRest, kInner);
+  const opInner = Math.random() < 0.5 ? "+" : "-";
+  const innerVal = opInner === "+" ? fa * fb + innerRest : fa * fb - innerRest;
+  if (innerVal < 0) {
+    return `(${fa} × ${fb} + ${seqInner})`;
+  }
+  if (kOuter === 0) {
+    return `(${fa} × ${fb} ${opInner} ${seqInner})`;
+  } else {
+    const outerVal = getRandomInt(10, 200);
+    const opOuter = Math.random() < 0.5 ? "+" : "-";
+    if (opOuter === "-" && innerVal < outerVal) {
+      return `(${fa} × ${fb} ${opInner} ${seqInner}) + ${outerVal}`;
+    }
+    return `(${fa} × ${fb} ${opInner} ${seqInner}) ${opOuter} ${outerVal}`;
+  }
+}
+
+function generateComplexBracket(totalNumbers: number): {
+  equation: string;
+  answer: number;
+} {
+  let attempts = 0;
+  while (attempts++ < 100) {
+    try {
+      const eq = tryGenerateComplexBracket(totalNumbers);
+      const res = evaluateArithmetic(eq);
+
+      // Verify number count
+      const numMatches = eq.match(/\b\d+\b/g) || [];
+      if (numMatches.length !== totalNumbers) continue;
+
+      // Verify has parenthesis
+      if (!eq.includes("(") || !eq.includes(")")) continue;
+
+      // Verify answer is positive integer
+      if (res.value <= 0 || !Number.isInteger(res.value) || res.value > 50000) {
+        continue;
+      }
+
+      // Verify all divisions have remainder 0 and divisor >= 2
+      let divOk = true;
+      for (const d of res.divisions) {
+        if (d.b <= 1 || d.remainder !== 0) {
+          divOk = false;
+          break;
+        }
+      }
+      if (!divOk) continue;
+
+      // Verify all multiplications
+      let mulOk = true;
+      for (const m of res.multiplications) {
+        if (!isValidMultiplicationFactors(m.a, m.b)) {
+          mulOk = false;
+          break;
+        }
+      }
+      if (!mulOk) continue;
+
+      return { equation: eq, answer: res.value };
+    } catch {
+      // Retry on invalid intermediate result
+    }
+  }
+  throw new Error(
+    `Failed to generate valid equation for length ${totalNumbers}`,
+  );
+}
+
 /**
  * Questions 9~10:
- * Form: (a + b - c) * d
- * Constraints:
- * - d must be 2-digit (10..99)
- * - a + b - c must be 3-digit (100..999)
+ * Complex arithmetic expressions with parentheses:
+ * - 4 to 7 numbers
+ * - At least one parenthesis
+ * - May include multiply (4x1, 3x1, or 2x2) and divide (remainder 0)
+ * - Non-negative intermediate operations
  */
 export function generateBracketMul(
   id: number,
   questionNumber: number,
 ): QuizItem {
-  // Target 3-digit inner result: S in [100, 999]
-  const targetSum = getRandomInt(100, 999);
-
-  // Choose c such that c is positive (e.g. 20..400)
-  const c = getRandomInt(20, 400);
-
-  // a + b = targetSum + c
-  const totalAB = targetSum + c;
-
-  // Split totalAB into two positive numbers a and b
-  const minA = Math.max(10, Math.floor(totalAB * 0.25));
-  const maxA = Math.min(totalAB - 10, Math.floor(totalAB * 0.75));
-  const a = getRandomInt(minA, maxA);
-  const b = totalAB - a;
-
-  // d must be 2-digit (10..99)
-  const d = getRandomInt(10, 99);
-
-  const innerResult = a + b - c; // guaranteed equal to targetSum (3-digit)
-  const answer = innerResult * d;
+  const totalNumbers = getRandomInt(4, 7);
+  const { equation, answer } = generateComplexBracket(totalNumbers);
 
   return {
     id,
     questionNumber,
-    equation: `(${a} + ${b} - ${c}) × ${d}`,
+    equation,
     answer,
     category: "bracket-mul",
-    categoryLabel: "(a + b - c) × d",
+    categoryLabel: "Mixed Operations with Parentheses",
   };
 }
 
@@ -288,16 +660,8 @@ export function evaluateEquation(item: QuizItem): number {
   }
 
   if (item.category === "bracket-mul") {
-    const match = item.equation.match(
-      /^\((\d+)\s*\+\s*(\d+)\s*-\s*(\d+)\)\s*×\s*(\d+)$/,
-    );
-    if (match) {
-      const a = Number(match[1]);
-      const b = Number(match[2]);
-      const c = Number(match[3]);
-      const d = Number(match[4]);
-      return (a + b - c) * d;
-    }
+    const res = evaluateArithmetic(item.equation);
+    return res.value;
   }
 
   if (item.category === "division") {
@@ -324,6 +688,36 @@ export function validateQuestion(item: QuizItem): boolean {
       `Math mismatch: equation "${item.equation}" evaluated to ${computed}, but stored answer was ${item.answer}`,
     );
   }
+
+  if (item.category === "bracket-mul") {
+    const numMatches = item.equation.match(/\b\d+\b/g) || [];
+    if (numMatches.length < 4 || numMatches.length > 7) {
+      throw new Error(
+        `Expected 4 to 7 numbers in bracket-mul, got ${numMatches.length}: ${item.equation}`,
+      );
+    }
+    if (!item.equation.includes("(") || !item.equation.includes(")")) {
+      throw new Error(
+        `Expected at least one parenthesis in bracket-mul: ${item.equation}`,
+      );
+    }
+    const res = evaluateArithmetic(item.equation);
+    for (const d of res.divisions) {
+      if (d.b <= 1 || d.remainder !== 0) {
+        throw new Error(
+          `Division constraint violated in bracket-mul: ${d.a} ÷ ${d.b} (remainder: ${d.remainder})`,
+        );
+      }
+    }
+    for (const m of res.multiplications) {
+      if (!isValidMultiplicationFactors(m.a, m.b)) {
+        throw new Error(
+          `Multiplication constraint violated in bracket-mul: ${m.a} × ${m.b}`,
+        );
+      }
+    }
+  }
+
   return true;
 }
 
