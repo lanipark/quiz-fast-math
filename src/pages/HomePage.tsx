@@ -45,8 +45,9 @@ export function HomePage() {
                   Q1–4:
                 </span>
                 <span>
-                  <strong>5 × 3-digit addition/subtraction</strong> (e.g.{" "}
-                  <em>342 + 810 - 215...</em>, intermediate values always ≥ 0).
+                  <strong>5 × 3-digit addition/subtraction</strong> (flash
+                  numbers shown one by one for 2s each, intermediate values
+                  always ≥ 0).
                 </span>
               </li>
               <li className="flex items-start gap-2">

@@ -43,6 +43,20 @@ export function QuizDisplay({
         })()
       : undefined);
 
+  // Sequential flash timing calculations for 5x3-digit questions
+  // Each number is shown for (secondsPerTerm - hideGapSeconds) then hidden for hideGapSeconds before the next number
+  const totalTerms = columnTerms?.length ?? 0;
+  const secondsPerTerm = totalTerms > 0 ? totalSeconds / totalTerms : 2.0;
+  const hideGapSeconds = 0.3; // 300ms clean blank gap between numbers
+  const elapsed = Math.max(0, totalSeconds - remainingSeconds);
+  const currentTermIndex =
+    totalTerms > 0
+      ? Math.min(totalTerms - 1, Math.floor(elapsed / secondsPerTerm))
+      : 0;
+  const timeInTerm = elapsed - currentTermIndex * secondsPerTerm;
+  const isVisible = timeInTerm < Math.max(0.1, secondsPerTerm - hideGapSeconds);
+  const currentTerm = columnTerms ? columnTerms[currentTermIndex] : null;
+
   return (
     <div className="flex flex-col items-center justify-center space-y-8 py-4">
       {/* Question Header & Phase Pill */}
@@ -52,7 +66,9 @@ export function QuizDisplay({
         </span>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
           <Eye className="size-3.5" />
-          Look & Calculate
+          {columnTerms
+            ? `Flash (${currentTermIndex + 1}/${totalTerms})`
+            : "Look & Calculate"}
         </span>
       </div>
 
@@ -62,23 +78,54 @@ export function QuizDisplay({
           {question.categoryLabel}
         </div>
 
-        {columnTerms ? (
-          <div className="flex flex-col items-center justify-center w-full py-1">
-            <div className="inline-flex flex-col font-mono text-3xl sm:text-4xl md:text-5xl font-bold select-none">
-              {columnTerms.map((term, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-end gap-3 sm:gap-4 tabular-nums leading-snug py-0.5"
+        {columnTerms && currentTerm ? (
+          <div className="flex flex-col items-center justify-center w-full space-y-3 py-2">
+            {/* Step progress pills and indicator */}
+            <div className="flex flex-col items-center gap-1.5">
+              <div className="flex items-center gap-2">
+                {columnTerms.map((_, idx) => {
+                  const isPast = idx < currentTermIndex;
+                  const isCurrent = idx === currentTermIndex;
+                  return (
+                    <div
+                      key={idx}
+                      className={`h-1.5 rounded-full transition-all duration-200 ${
+                        isCurrent
+                          ? "w-8 bg-primary"
+                          : isPast
+                            ? "w-4 bg-primary/40"
+                            : "w-4 bg-muted-foreground/25"
+                      }`}
+                    />
+                  );
+                })}
+              </div>
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">
+                Number {currentTermIndex + 1} of {totalTerms}
+              </span>
+            </div>
+
+            {/* Flash Number Display with fixed height to prevent layout shift */}
+            <div className="h-28 sm:h-32 flex items-center justify-center w-full">
+              <div
+                className={`flex items-center justify-center font-mono font-bold select-none tabular-nums text-6xl sm:text-7xl md:text-8xl tracking-wider transition-opacity duration-75 ${
+                  isVisible ? "opacity-100" : "opacity-0"
+                }`}
+              >
+                <span
+                  className={`inline-block w-12 sm:w-16 md:w-20 text-center font-bold mr-1 sm:mr-2 ${
+                    currentTerm.operator === "-"
+                      ? "text-rose-500 dark:text-rose-400"
+                      : currentTerm.operator === "+"
+                        ? "text-primary"
+                        : "opacity-0 pointer-events-none"
+                  }`}
+                  aria-hidden={!currentTerm.operator}
                 >
-                  <span className="w-6 sm:w-8 text-center text-muted-foreground font-semibold text-2xl sm:text-3xl md:text-4xl">
-                    {term.operator ?? ""}
-                  </span>
-                  <span className="text-right tracking-widest font-mono">
-                    {term.value}
-                  </span>
-                </div>
-              ))}
-              <div className="border-b-2 border-foreground/40 w-full mt-2" />
+                  {currentTerm.operator ?? "+"}
+                </span>
+                <span className="text-foreground">{currentTerm.value}</span>
+              </div>
             </div>
           </div>
         ) : (
@@ -98,7 +145,8 @@ export function QuizDisplay({
       <div className="w-full space-y-2">
         <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
           <span className="flex items-center gap-1.5">
-            <Timer className="size-3.5" /> Equation Screen
+            <Timer className="size-3.5" />{" "}
+            {columnTerms ? "Flash Numbers" : "Equation Screen"}
           </span>
           <span className="font-mono font-semibold text-foreground text-sm tabular-nums">
             {remainingSeconds.toFixed(1)}s
