@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Link } from "react-router";
+import { BrowserRouter, Routes, Route, Link, Navigate } from "react-router";
 import { Calculator } from "lucide-react";
 import { HomePage } from "@/pages/HomePage";
 import { QuizPage } from "@/pages/QuizPage";
@@ -40,6 +40,7 @@ export default function App() {
             <Route path="/quiz" element={<QuizPage />} />
             <Route path="/completed" element={<CompletedPage />} />
             <Route path="/results" element={<ResultsPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
 
